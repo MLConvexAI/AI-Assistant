@@ -107,8 +107,10 @@ def sidebar_menus():
     if st.session_state.chosen_id == "4 Chat":
         with st.sidebar:
             if st.button("Clear Chat history", type="primary"):
-                del st.session_state.chat
-                del st.session_state.messages
+                if "chat" in st.session_state:
+                    del st.session_state.chat
+                if "messages" in st.session_state:
+                    del st.session_state.messages
 
     with st.sidebar:
         uploaded_side_files1 = st.file_uploader("Import files for system prompt, {SYSTEM_FILES}", accept_multiple_files=True, key=23)
@@ -241,6 +243,10 @@ def role_to_streamlit(role):
   else:
     return role
   
+def clear_for_markup(text):
+    text = text.replace("#", "\#")
+    text = text.replace("*", "\*")
+    return text
 
 def gemini_model():
 
@@ -268,7 +274,11 @@ def gemini_model():
     # Show chat messages from history
     for message in st.session_state.chat.history:
         with st.chat_message(role_to_streamlit(message.role)):
-            st.markdown(message.parts[0].text)
+            if message.role == "user":
+                output_text = clear_for_markup(message.parts[0].text)
+            else:
+                output_text = message.parts[0].text
+            st.markdown(output_text)    
 
     # user has created user prompt and pressed "Send" button
     if st.session_state.user_prompt_sent_gemini == 1:
@@ -278,7 +288,7 @@ def gemini_model():
                                             QUESTION=st.session_state.input_question,
                                             DECORATION=st.session_state.input_decoration,
                                             CONTEXT_FILES=st.session_state.uploaded_files2)
-        st.chat_message("user").markdown(user_prompt)
+        st.chat_message("user").markdown(clear_for_markup(user_prompt))
         generation_config = {
                 "max_output_tokens" : st.session_state.max_tokens_Flash,
                 "temperature" : st.session_state.temperature_Flash,
@@ -345,7 +355,11 @@ def gpt_model():
     for message in st.session_state.messages:
         if message["role"] != "system":
             with st.chat_message(message["role"]):
-                st.markdown(message["content"])      
+                if message["role"] == "user":
+                    output_text = clear_for_markup(message["content"])
+                else:
+                    output_text = message["content"]
+                st.markdown(output_text)      
 
     # user has created a user prompt and pressed Send to the model button
     if st.session_state.user_prompt_sent_gpt == 1:
@@ -362,7 +376,7 @@ def gpt_model():
                     "content": user_prompt
                 }
             )
-        st.chat_message("user").markdown(user_prompt)
+        st.chat_message("user").markdown(clear_for_markup(user_prompt))
  
         response = st.session_state.client.chat.completions.create(
                 model = "gpt-4o-2024-05-13",
