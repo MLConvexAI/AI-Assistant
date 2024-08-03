@@ -246,6 +246,7 @@ def role_to_streamlit(role):
 def clear_for_markup(text):
     text = text.replace("#", "\#")
     text = text.replace("*", "\*")
+    text = text.replace("\n", "\n\n")
     return text
 
 def gemini_model():
@@ -275,10 +276,9 @@ def gemini_model():
     for message in st.session_state.chat.history:
         with st.chat_message(role_to_streamlit(message.role)):
             if message.role == "user":
-                output_text = clear_for_markup(message.parts[0].text)
+                st.text(message.parts[0].text)
             else:
-                output_text = message.parts[0].text
-            st.markdown(output_text)    
+                st.markdown(message.parts[0].text)   
 
     # user has created user prompt and pressed "Send" button
     if st.session_state.user_prompt_sent_gemini == 1:
@@ -288,7 +288,7 @@ def gemini_model():
                                             QUESTION=st.session_state.input_question,
                                             DECORATION=st.session_state.input_decoration,
                                             CONTEXT_FILES=st.session_state.uploaded_files2)
-        st.chat_message("user").markdown(clear_for_markup(user_prompt))
+        st.chat_message("user").text(user_prompt)
         generation_config = {
                 "max_output_tokens" : st.session_state.max_tokens_Flash,
                 "temperature" : st.session_state.temperature_Flash,
@@ -304,7 +304,7 @@ def gemini_model():
 
         # chat with your documents, ask a question
     if prompt := st.chat_input("What would you like to know?"):
-        st.chat_message("user").markdown(prompt)
+        st.chat_message("user").text(prompt)
                 
         generation_config = {
                 "max_output_tokens" : st.session_state.max_tokens_Flash,
@@ -356,10 +356,9 @@ def gpt_model():
         if message["role"] != "system":
             with st.chat_message(message["role"]):
                 if message["role"] == "user":
-                    output_text = clear_for_markup(message["content"])
+                    st.text(message["content"])
                 else:
-                    output_text = message["content"]
-                st.markdown(output_text)      
+                    st.markdown(message["content"])  
 
     # user has created a user prompt and pressed Send to the model button
     if st.session_state.user_prompt_sent_gpt == 1:
@@ -376,7 +375,7 @@ def gpt_model():
                     "content": user_prompt
                 }
             )
-        st.chat_message("user").markdown(clear_for_markup(user_prompt))
+        st.chat_message("user").text(user_prompt)
  
         response = st.session_state.client.chat.completions.create(
                 model = "gpt-4o-2024-05-13",
