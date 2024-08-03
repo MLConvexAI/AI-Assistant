@@ -242,12 +242,6 @@ def role_to_streamlit(role):
     return "assistant"
   else:
     return role
-  
-def clear_for_markup(text):
-    text = text.replace("#", "\#")
-    text = text.replace("*", "\*")
-    text = text.replace("\n", "\n\n")
-    return text
 
 def gemini_model():
 
