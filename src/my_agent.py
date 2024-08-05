@@ -83,8 +83,10 @@ def sidebar_menus():
         st.session_state.input_decoration = "" 
         st.session_state.user_prompt = "\"\"\"\n{PRIMING} \n\n{QUESTION}\n\n{DECORATION}\n\nCONTEXT_FILES:\n\n{CONTEXT_FILES}\n\"\"\" "          
         # clear chat history
-        del st.session_state.chat
-        del st.session_state.messages
+        if "chat" in st.session_state:
+            del st.session_state.chat
+        if "messages" in st.session_state:
+            del st.session_state.messages
 
     # Select the page
     with st.sidebar:
