@@ -266,7 +266,7 @@ def gemini_model():
         vertexai.init(project=GEMINI_PROJECT, location=GEMINI_LOCATION)
         model = GenerativeModel(GEMINI_MODEL,system_instruction=[sys_instructions]) 
         # clear chat history
-        st.session_state.chat = model.start_chat(history = [])
+        st.session_state.chat = model.start_chat(history = [], response_validation=False)
 
     # Show chat messages from history
     for message in st.session_state.chat.history:
@@ -401,7 +401,7 @@ def gpt_model():
                     "content": prompt
                 }
             )
-        st.chat_message("user").markdown(prompt)
+        st.chat_message("user").text(prompt)
         
         # response to the question is generated
         response = st.session_state.client.chat.completions.create(
